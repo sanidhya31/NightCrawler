@@ -54,6 +54,8 @@ def main():
         c.get("linkedin"), c.get("github"),
     ]))
 
+    is_de = cov.get("lang", "en") == "de"
+    re_label = "Betreff: Bewerbung als" if is_de else "Re: Application for"
     paras = "".join(f"<p>{esc(p)}</p>" for p in cov.get("paragraphs", []))
     html_str = f"""<!doctype html><html><head><meta charset="utf-8"><style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -76,7 +78,7 @@ def main():
   <div class="meta">
     <div>{esc(cov.get('date',''))}</div>
     <div style="margin-top:8px;">{esc(cov.get('company',''))}</div>
-    <div class="re">Re: Application for {esc(cov.get('role',''))}</div>
+    <div class="re">{re_label} {esc(cov.get("role",""))}</div>
   </div>
   <div class="greet">{esc(cov.get('greeting','Dear Hiring Team,'))}</div>
   {paras}
@@ -90,7 +92,7 @@ def main():
     # also a plain .md for quick reading/editing
     md = (f"# {c['name']}\n{contact.replace(' &middot; ', ' · ')}\n\n"
           f"{cov.get('date','')}\n\n{cov.get('company','')}\n"
-          f"Re: Application for {cov.get('role','')}\n\n"
+          f"{re_label} {cov.get('role','')}\n\n"
           f"{cov.get('greeting','')}\n\n" + "\n\n".join(cov.get("paragraphs", [])) +
           f"\n\n{cov.get('closing','')}\n{c['name']}\n")
     Path(str(out_base) + ".md").write_text(md, encoding="utf-8")
