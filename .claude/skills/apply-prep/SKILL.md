@@ -54,64 +54,41 @@ fluent-German-required roles. No-reposts is automatic (seen_links.txt).
 ./.venv/Scripts/python.exe scripts/tracker.py --backlog-from runs/<date>/ranked.json
 ```
 
-### 3. Tailor each top job — STRICT one-at-a-time delivery
-Read `base/tailoring-spec.md` and `base/base-resume.json` first.
+### 3. Build cluster resumes (the library — REUSE first, generate only if needed)
+Read `runs/<date>/tailor.json` (top jobs; each has `cluster`, `sources`, and its JD).
+Collect the DISTINCT clusters among the top jobs. For EACH distinct cluster:
+  - Check whether it needs (re)generating:
+    ```
+    ./.venv/Scripts/python.exe scripts/library.py --need "<Cluster Name>"
+    ```
+    Exit 0 = generate it. Exit 1 = a fresh one already exists -> REUSE, skip generation.
+  - If it needs generating: following `base/tailoring-spec.md`, tailor
+    `base/base-resume.json` toward the CLUSTER ANGLE (use the cluster's theme/keywords
+    from config as the target — NOT one company). Keep ALL bullets (full, descriptive
+    — do not trim). Write `library/<slug>.tailored.json` (EN) and
+    `library/<slug>.tailored.de.json` (DE, `"lang":"de"`), guard both, render both
+    (`build_resume.py library/<slug>.tailored.json library/<slug>` and the `.de`),
+    then `./.venv/Scripts/python.exe scripts/library.py --record "<Cluster Name>"`.
+  This makes at most ~4 resumes for all 10 jobs (the big token saver). A resume is
+  reused across days until `base-resume.json` changes (the library auto-detects).
 
-**CRITICAL ORDERING:** process jobs ONE AT A TIME and fully DELIVER each before
-starting the next. For each job do steps a-i completely (tailor -> guard -> render
--> copy to Drive -> log to the sheet) and only THEN move to the next job. Never
-batch (do not tailor several, then render several, then log several). This way, if
-the token/session limit is hit mid-run, every job already started is fully finished
-and in the sheet — the user always has complete results in hand.
-
-Read `runs/<date>/tailor.json` (ONLY the top jobs, with their descriptions — do NOT
-read ranked.json for tailoring; it's the slim/backlog file and loading it wastes
-tokens). For EACH job in tailor.json, in order:
-
-  a. Make folder `runs/<date>/<slug>/` where slug = `<company>-<short-title>`
-     (lowercase, hyphens, no special chars).
-  b. Write `job.md` with title, company, location, link, applicantsCount,
-     postedAt, the JD (descriptionText), and a one-line "why it matched".
-  c. Produce **two** tailored resumes following tailoring-spec.md, using the job's
-     `descriptionText` as the target:
-       - `resume.tailored.json`      (English)
-       - `resume.tailored.de.json`   (German; include `"lang": "de"`)
-     Change ONLY summary, bullet wording/order, skills grouping, project order.
-     Keep all locked facts byte-identical. Keep base bullet ids.
-  d. Guard BOTH (must PASS — fix and retry if it fails):
-     ```
-     ./.venv/Scripts/python.exe scripts/guard.py base/base-resume.json runs/<date>/<slug>/resume.tailored.json
-     ./.venv/Scripts/python.exe scripts/guard.py base/base-resume.json runs/<date>/<slug>/resume.tailored.de.json
-     ```
-  e. Render BOTH to PDF:
-     ```
-     ./.venv/Scripts/python.exe scripts/build_resume.py runs/<date>/<slug>/resume.tailored.json    runs/<date>/<slug>/resume
-     ./.venv/Scripts/python.exe scripts/build_resume.py runs/<date>/<slug>/resume.tailored.de.json runs/<date>/<slug>/resume.de
-     ```
-  f. Generate cover letters per `base/cover-letter-template.md`: write `cover.json`
-     (EN) and `cover.de.json` (DE) — letterhead pulled from base, body tailored to
-     the job, honest (German = beginner). Then render:
-     ```
-     ./.venv/Scripts/python.exe scripts/build_coverletter.py runs/<date>/<slug>/cover.json    runs/<date>/<slug>/cover-letter
-     ./.venv/Scripts/python.exe scripts/build_coverletter.py runs/<date>/<slug>/cover.de.json runs/<date>/<slug>/cover-letter.de
-     ```
-  g. Copy outputs to Drive (if config.drive.enabled): copy this job's resume PDFs
-     and cover-letter PDFs to `<config.drive.dir>/<date>/<slug>/` so Drive Desktop
-     syncs them. Keep the same per-job folder structure.
-  h. Get clickable Drive links (if Drive API is set up): after the copy, fetch
-     web links (allow a short retry for sync):
-     ```
-     ./.venv/Scripts/python.exe scripts/drive_links.py <date> <slug>
-     ```
-     Use the returned URLs for resume_en/resume_de/cover_letter in the row json.
-     If links aren't available yet, fall back to the Drive file paths.
-  i. Log the job:
-     Write a row json (date, company, role, job_link, resume_en, resume_de,
-     cover_letter [use Drive links from step h], match_score, status "New",
-     notes incl. [WATCHLIST] if job.watchlist) then:
-     ```
-     ./.venv/Scripts/python.exe scripts/tracker.py --job runs/<date>/<slug>/job-row.json
-     ```
+### 4. Deliver each top job — STRICT one-at-a-time, REUSE the cluster resume
+For EACH job in tailor.json, in rank order, FULLY deliver before starting the next
+(if the token limit hits mid-run, every delivered job is complete in the sheet):
+  a. slug = `<company>-<short-title>`. Make `runs/<date>/<slug>/` and the Drive folder.
+     Write `job.md` (title, company, link(s), JD, cluster, why matched).
+  b. REUSE the resume: get this job's cluster files via
+     `library.py --get "<cluster>"`, and copy the library EN+DE PDFs into the job's
+     Drive folder as `resume.pdf` / `resume.de.pdf`. Do NOT regenerate the resume.
+  c. Generate a per-JOB cover letter (this company + role swapped in, personal touch),
+     EN and/or DE, via build_coverletter.py; copy to Drive.
+  d. Log ONE row for this job via `tracker.py --job runs/<date>/<slug>/job-row.json`:
+     - `job_link` = ALL apply-links from job["sources"] joined, e.g.
+       `LinkedIn: <url> | Indeed: <url> | XING: <url>` (this is the merged-link cell).
+     - `resume_en` / `resume_de` = the Drive paths of the (reused) cluster resume.
+     - `cover_letter` = this job's letter path.
+     - `notes` = cluster name + [WATCHLIST] if job.watchlist.
+     (Drive paths now; step 4b upgrades them to clickable links once Drive syncs.)
 
 ### 4. Write the morning digest
 Create `runs/<date>/digest.md`:
