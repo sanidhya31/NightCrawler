@@ -53,9 +53,11 @@ Mix of professional + clear + slightly punchy. No fluff, no buzzword salad.
 Use small hyphens "-", never em-dashes. Avoid unnecessary hyphenation.
 
 ## German version (`.de.json`)
-- Translate `summary`, bullet `text`, skill category labels, skill values where
-  natural, and language `level` (Fluent→Fließend, Beginner→Grundkenntnisse,
-  Native→Muttersprache) into natural professional German.
+- Translate `summary`, bullet `text`, skill category labels, and skill values where
+  natural into professional German.
+- Language `level` values that are CEFR codes (A1, A2, B1, B2, C1, C2) stay
+  IDENTICAL in both languages — never translate them. Translate only the language
+  NAMES (English→Englisch, German→Deutsch).
 - KEEP locked facts identical and in original form: company names, role titles,
   dates, locations, degree names, contact details. (Do NOT translate "Analyst",
   "M.Sc. Data Science", company names, etc.)

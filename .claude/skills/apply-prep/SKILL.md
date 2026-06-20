@@ -121,6 +121,14 @@ Create `runs/<date>/digest.md`:
   - Bottom section: the remaining kept-but-not-tailored jobs as a quick list
     (title, company, link) in case the user wants more.
 
+### 4b. Refresh Drive links (clickable URLs in the sheet)
+After all jobs are delivered, Drive Desktop has had time to sync. Upgrade the sheet's
+Resume/Cover columns from local paths to clickable Drive web links:
+```
+./.venv/Scripts/python.exe scripts/refresh_links.py <YYYY-MM-DD>
+```
+If it reports nothing found yet (Drive still syncing), wait ~1 min and run it again.
+
 ### 5. Summarize to the user
 Report: how many found / kept / tailored, any watchlist hits, where the digest is,
 and confirm the Google Sheet was updated.
