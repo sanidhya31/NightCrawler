@@ -31,6 +31,9 @@ ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / "config.json"
 SEEN = ROOT / "runs" / "seen_links.txt"
 
+sys.path.insert(0, str(ROOT / "scripts"))
+from cluster import assign_cluster  # noqa: E402
+
 GERMAN_REQ = [
     "fließend deutsch", "fliessend deutsch", "fließende deutsch", "fließendes deutsch",
     "verhandlungssicher", "sehr gute deutschkenntnisse", "muttersprache deutsch",
@@ -83,6 +86,7 @@ def main():
     cutoff = f["recency"]["hard_cutoff_days"]
     max_appl = f["applicants"]["max"]
     profile_kw = f.get("profile_keywords", [])
+    clusters = f.get("clusters", [])
     w = f.get("weights", {"match": 0.5, "applicants": 0.3, "recency": 0.2})
     gp = f.get("german_penalty", 0.25)
     watch = [x.lower() for x in f.get("watchlist_flag", [])]
@@ -118,8 +122,10 @@ def main():
         company = str(j.get("companyName", ""))
         kept.append({
             "title": j.get("title"), "company": company, "location": j.get("location"),
-            "link": link, "postedAt": j.get("postedAt"), "applicantsCount": appl,
+            "link": link, "sources": j.get("sources", []),
+            "postedAt": j.get("postedAt"), "applicantsCount": appl,
             "descriptionText": j.get("descriptionText", ""),
+            "cluster": assign_cluster(j, clusters)[0],
             "watchlist": any(x in company.lower() for x in watch),
             "german_required": ger,
             "match_estimate": round(fit * 10, 1),
