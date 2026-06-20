@@ -54,9 +54,19 @@ fluent-German-required roles. No-reposts is automatic (seen_links.txt).
 ./.venv/Scripts/python.exe scripts/tracker.py --backlog-from runs/<date>/ranked.json
 ```
 
-### 3. Tailor each top job
+### 3. Tailor each top job — STRICT one-at-a-time delivery
 Read `base/tailoring-spec.md` and `base/base-resume.json` first.
-For EACH job in ranked.json where `bucket == "tailor"`:
+
+**CRITICAL ORDERING:** process jobs ONE AT A TIME and fully DELIVER each before
+starting the next. For each job do steps a-i completely (tailor -> guard -> render
+-> copy to Drive -> log to the sheet) and only THEN move to the next job. Never
+batch (do not tailor several, then render several, then log several). This way, if
+the token/session limit is hit mid-run, every job already started is fully finished
+and in the sheet — the user always has complete results in hand.
+
+Read `runs/<date>/tailor.json` (ONLY the top jobs, with their descriptions — do NOT
+read ranked.json for tailoring; it's the slim/backlog file and loading it wastes
+tokens). For EACH job in tailor.json, in order:
 
   a. Make folder `runs/<date>/<slug>/` where slug = `<company>-<short-title>`
      (lowercase, hyphens, no special chars).

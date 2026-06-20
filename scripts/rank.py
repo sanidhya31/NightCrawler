@@ -130,8 +130,15 @@ def main():
     for i, x in enumerate(kept):
         x["bucket"] = "tailor" if i < cap else ("backlog" if i < cap + backlog_cap else "drop")
 
-    out = ROOT / "runs" / run_date / "ranked.json"
-    out.write_text(json.dumps(kept, indent=2, ensure_ascii=False), encoding="utf-8")
+    out_dir = ROOT / "runs" / run_date
+    # ranked.json: ALL kept but SLIM (no long descriptions) -> used for backlog + overview
+    slim = [{k: v for k, v in x.items() if k != "descriptionText"} for x in kept]
+    (out_dir / "ranked.json").write_text(json.dumps(slim, indent=2, ensure_ascii=False), encoding="utf-8")
+    # tailor.json: ONLY the top jobs, WITH descriptions -> the skill reads only this,
+    # so Claude never loads the other jobs' descriptions (big token saver).
+    tailor = [x for x in kept if x["bucket"] == "tailor"]
+    (out_dir / "tailor.json").write_text(json.dumps(tailor, indent=2, ensure_ascii=False), encoding="utf-8")
+    out = out_dir / "ranked.json"
     save_seen(all_links)
 
     n_tailor = sum(1 for x in kept if x["bucket"] == "tailor")
