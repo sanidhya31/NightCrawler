@@ -31,7 +31,13 @@
       "praktikum data science",
       "werkstudent automation",
       "working student software",
-      "working student AI"
+      "working student AI",
+      "AI workflow",
+      "no-code",
+      "werkstudent KI",
+      "werkstudent projektmanagement",
+      "project management intern",
+      "working student automation"
     ],
     "location": "Germany",
     "remote_ok": true,
@@ -49,14 +55,14 @@
         "type": "indeed",
         "enabled": true,
         "count": 15,
-        "query": "werkstudent data analyst automation"
+        "query": "werkstudent data analyst automation KI projektmanagement"
       },
       {
         "name": "xing",
         "type": "xing",
         "enabled": true,
         "count": 15,
-        "query": "werkstudent data"
+        "query": "werkstudent data automation projektmanagement"
       },
       {
         "name": "arbeitnow",
@@ -139,6 +145,19 @@
       "process",
       "scripting",
       "no-code",
+      "low-code",
+      "llm",
+      "prompt",
+      "ai workflow",
+      "ai builder",
+      "agent",
+      "copilot",
+      "generative",
+      "rpa",
+      "project manager",
+      "projektmanagement",
+      "agile",
+      "scrum",
       "tech",
       "working student",
       "werkstudent"
@@ -199,8 +218,30 @@
         ]
       },
       {
+        "name": "AI & No-Code Building",
+        "keywords": [
+          "no-code",
+          "low-code",
+          "ai workflow",
+          "ai builder",
+          "llm",
+          "prompt",
+          "copilot",
+          "agent",
+          "generative",
+          "automation tool",
+          "ki ",
+          "ai-",
+          "gen ai",
+          "genai"
+        ]
+      },
+      {
         "name": "Management-Tech",
         "keywords": [
+          "project management",
+          "projektmanagement",
+          "project manager",
           "project",
           "management",
           "product",
@@ -210,7 +251,10 @@
           "consulting",
           "strategy",
           "process",
-          "innovation"
+          "innovation",
+          "agile",
+          "scrum",
+          "pmo"
         ]
       }
     ],
