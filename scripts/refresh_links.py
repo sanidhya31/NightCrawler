@@ -45,7 +45,11 @@ for d in run_dir.iterdir():
     except Exception as e:
         print(f"  (drive lookup failed for {d.name}: {e})")
         continue
-    web = (links.get("resume.pdf", ""), links.get("resume.de.pdf", ""), links.get("cover-letter.pdf", ""))
+    web = (
+        links.get("resume.pdf", ""),
+        links.get("resume.de.pdf", ""),
+        links.get("cover-letter.pdf") or links.get("cover-letter.de.pdf", ""),
+    )
     if any(web):
         link_map[jl] = web
 
@@ -62,7 +66,12 @@ ws = gspread.authorize(creds).open_by_key(cfg["google"]["sheet_id"]).worksheet(d
 rows = ws.get_all_values()
 updated = 0
 for i, r in enumerate(rows[1:], start=2):
-    if len(r) > 3 and r[3].strip() in link_map:
-        ws.update([list(link_map[r[3].strip()])], f"E{i}:G{i}")
-        updated += 1
+    key = r[3].strip() if len(r) > 3 else ""
+    if key not in link_map:
+        continue
+    new = link_map[key]
+    cur = (r[4] if len(r) > 4 else "", r[5] if len(r) > 5 else "", r[6] if len(r) > 6 else "")
+    merged = [new[k] or cur[k] for k in range(3)]  # keep existing if no new link
+    ws.update([merged], f"E{i}:G{i}")
+    updated += 1
 print(f"Refreshed {updated} row(s) to clickable Drive links in tab '{date}'.")
