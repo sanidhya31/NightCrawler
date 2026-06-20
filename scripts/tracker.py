@@ -89,7 +89,9 @@ def rollover(cfg, today):
     moved = 0
     for ws in sh.worksheets():
         title = ws.title
-        if title in (archive_title, backlog_title, today):
+        # Only archive OLD daily date tabs (YYYY-MM-DD). Preserve today's tab,
+        # Past, Backlog, and any custom tab (e.g. "Tech Picks").
+        if not DATE_RE.match(title) or title == today:
             continue
         # archive any non-today tab that has data (date tabs and the old "Jobs" tab)
         rows = ws.get_all_values()
