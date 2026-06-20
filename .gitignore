@@ -16,6 +16,7 @@ __pycache__/
 
 # ===== Generated output =====
 runs/
+library/
 
 # ===== Machine-specific (generated per-machine by the setup skill) =====
 .claude/settings.json

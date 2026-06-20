@@ -125,20 +125,38 @@ def main():
         ranked = json.loads(ranked_path.read_text(encoding="utf-8"))
         backlog = [x for x in ranked if x.get("bucket") == "backlog"]
         date = ranked_path.parent.name
-        rows = [[
-            date, x.get("company", ""), x.get("title", ""), x.get("link", ""),
-            "", "", "",  # no resume/cover for backlog
-            str(x.get("match_estimate", "")), "Backlog",
-            f"score {x.get('score','')}" + (" [WATCH]" if x.get("watchlist") else "")
-            + (" [DE-req]" if x.get("german_required") else ""),
-        ] for x in backlog]
+        # near-miss = backlog jobs scoring within `margin` of the lowest tailored job
+        tailor_scores = [x.get("score", 0) for x in ranked if x.get("bucket") == "tailor"]
+        cutoff = min(tailor_scores) if tailor_scores else None
+        margin = cfg["filters"].get("near_miss_margin", 0.04)
+
+        rows, near_idx = [], []
+        for x in backlog:
+            near = cutoff is not None and x.get("score", 0) >= cutoff - margin
+            if near:
+                near_idx.append(len(rows))
+            note = (f"{x.get('cluster','')} | score {x.get('score','')}"
+                    + (" [WATCH]" if x.get("watchlist") else "")
+                    + (" [DE-req]" if x.get("german_required") else "")
+                    + (" *** NEAR-MISS, could be top 10 ***" if near else ""))
+            rows.append([
+                date, x.get("company", ""), x.get("title", ""), x.get("link", ""),
+                f"reuse: {x.get('cluster','')} resume", "", "",
+                str(x.get("match_estimate", "")), "Backlog", note,
+            ])
         if not rows:
             print("No backlog jobs to log.")
             return
         sh = open_spreadsheet(cfg)
         ws = get_or_create_ws(sh, cfg["google"].get("backlog_tab", "Backlog"))
+        start = len(ws.get_all_values()) + 1  # row where this batch begins
         ws.append_rows(rows, value_input_option="USER_ENTERED")
-        print(f"Logged {len(rows)} backlog job(s) to '{ws.title}'.")
+        # red-highlight the near-miss rows
+        red = {"backgroundColor": {"red": 0.96, "green": 0.80, "blue": 0.80}}
+        for i in near_idx:
+            r = start + i
+            ws.format(f"A{r}:J{r}", red)
+        print(f"Logged {len(rows)} backlog job(s) to '{ws.title}' ({len(near_idx)} near-miss, marked red).")
         return
 
     if "--job" in sys.argv:
