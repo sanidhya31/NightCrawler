@@ -72,6 +72,15 @@ def icon(name):
     return ICONS[name].replace("{c}", ACCENT)
 
 
+def _href(kind, val):
+    if kind == "mail":
+        return "mailto:" + val
+    if kind in ("linkedin", "github"):
+        v = val if val.startswith(("http://", "https://")) else "https://" + val
+        return v
+    return None  # phone, location: no link
+
+
 def contact_row(c):
     items = [
         ("mail", c["email"]),
@@ -84,9 +93,10 @@ def contact_row(c):
     for ic, val in items:
         if not val:
             continue
-        cells += (
-            f'<div class="c-item"><span class="c-ic">{icon(ic)}</span>{esc(val)}</div>'
-        )
+        href = _href(ic, val)
+        inner = (f'<a href="{esc(href)}" style="color:inherit; text-decoration:none;">{esc(val)}</a>'
+                 if href else esc(val))
+        cells += f'<div class="c-item"><span class="c-ic">{icon(ic)}</span>{inner}</div>'
     return cells
 
 
