@@ -89,13 +89,16 @@ def contact_row(c):
         ("pin", c["location"]),
         ("github", c.get("github", "")),
     ]
+    # Show clean labels for profile links (the URL is the clickable target).
+    labels = {"linkedin": "LinkedIn", "github": "GitHub"}
     cells = ""
     for ic, val in items:
         if not val:
             continue
         href = _href(ic, val)
-        inner = (f'<a href="{esc(href)}" style="color:inherit; text-decoration:none;">{esc(val)}</a>'
-                 if href else esc(val))
+        text = labels.get(ic, val)
+        inner = (f'<a href="{esc(href)}" style="color:inherit; text-decoration:none;">{esc(text)}</a>'
+                 if href else esc(text))
         cells += f'<div class="c-item"><span class="c-ic">{icon(ic)}</span>{inner}</div>'
     return cells
 
