@@ -258,6 +258,10 @@
         ]
       }
     ],
-    "_clusters_note": "Jobs are grouped into the cluster whose keywords they best match; each cluster reuses one shared resume. Order matters for ties (earlier wins). Edit freely."
+    "_clusters_note": "Jobs are grouped into the cluster whose keywords they best match; each cluster reuses one shared resume. Order matters for ties (earlier wins). Edit freely.",
+    "cluster_boost": {
+      "AI & No-Code Building": 0.2
+    },
+    "_cluster_boost_note": "Score bonus added to jobs in these clusters so they rank FIRST. AI/vibe-coding is top priority. Raise the number to prioritize harder; add more clusters as needed."
   }
 }

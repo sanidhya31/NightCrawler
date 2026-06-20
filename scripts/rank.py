@@ -87,6 +87,7 @@ def main():
     max_appl = f["applicants"]["max"]
     profile_kw = f.get("profile_keywords", [])
     clusters = f.get("clusters", [])
+    cluster_boost = f.get("cluster_boost", {})
     w = f.get("weights", {"match": 0.5, "applicants": 0.3, "recency": 0.2})
     gp = f.get("german_penalty", 0.25)
     watch = [x.lower() for x in f.get("watchlist_flag", [])]
@@ -116,8 +117,10 @@ def main():
         appl_norm = max(0.0, min(1.0, appl_norm))
         recency_norm = max(0.0, 1.0 - d / cutoff)
         ger = german_required(j)
+        cl = assign_cluster(j, clusters)[0]
         score = (w["match"] * fit + w["applicants"] * appl_norm
-                 + w["recency"] * recency_norm) - (gp if ger else 0.0)
+                 + w["recency"] * recency_norm) - (gp if ger else 0.0) \
+                + cluster_boost.get(cl, 0.0)
 
         company = str(j.get("companyName", ""))
         kept.append({
@@ -125,7 +128,7 @@ def main():
             "link": link, "sources": j.get("sources", []),
             "postedAt": j.get("postedAt"), "applicantsCount": appl,
             "descriptionText": j.get("descriptionText", ""),
-            "cluster": assign_cluster(j, clusters)[0],
+            "cluster": cl,
             "watchlist": any(x in company.lower() for x in watch),
             "german_required": ger,
             "match_estimate": round(fit * 10, 1),
