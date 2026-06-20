@@ -4,8 +4,9 @@
 
 **Wake up to job applications that are already done.**
 
-NightCrawler finds fresh werkstudent & internship jobs every night, ranks them by
-real fit, and tailors a **resume + cover letter in English *and* German** for the
+NightCrawler finds fresh werkstudent & internship jobs every night from **multiple
+job boards**, ranks them by real fit, **groups similar jobs and reuses one resume
+per group**, and writes a **resume + cover letter in English *and* German** for the
 best matches — saved to your Drive and logged to a Google Sheet by morning.
 
 *Built for [Claude Code](https://code.claude.com). It never auto-applies, and it
@@ -18,20 +19,56 @@ never invents facts about you.*
 ## ✨ What it does
 
 ```
-   🔎 find            🧮 rank             ✍️ tailor           📥 deliver
- LinkedIn jobs  →  fit + fewest    →  resume + cover   →  Google Drive
- (via Apify)       applicants +       letter, EN + DE      + Google Sheet
-                   recency            (honest, guarded)    (clickable links)
+ 🔎 find (4 sources)   🧮 rank+group        ♻️ reuse            📥 deliver
+ LinkedIn · Indeed  →  fit + fewest    →  one resume per   →  Google Drive +
+ XING · Arbeitnow      applicants +       work-cluster        Google Sheet
+ (dedup same job)      recency + fit      (library cache)     (merged links)
 ```
 
+- **Multi-source** — LinkedIn, Indeed, XING (via Apify) + Arbeitnow (free API). The
+  same job found on several boards is merged into one row with all apply-links.
 - **Honest by design** — a guard blocks any change to locked facts (employers,
   dates, education, contact). Tailoring only rewords summary, skills, and bullets.
 - **Bilingual** — every resume and cover letter in English and German.
 - **Ranked, not spammed** — newest + fewest applicants + best profile fit first;
   fluent-German-required roles are penalised if you're not fluent.
+- **Reusable resumes (token-smart)** — jobs are grouped into work-clusters (e.g.
+  Data, Automation, Software, Management-tech); each cluster reuses **one** resume.
+  10 jobs typically need ~3-4 resumes, not 10.
 - **No repeats** — every job seen is remembered.
-- **Backlog** — near-miss jobs are saved (links only) for you to promote.
+- **Backlog** — near-miss jobs are saved (links only) and the closest ones are
+  flagged red so you can promote them.
 - **Runs itself** — optional overnight schedule with self-retry.
+
+## 🏗️ Architecture
+
+```
+search.py     pull all sources -> normalize -> dedupe same job across boards
+rank.py       drop old/over-applied/seen -> score (fit·0.5 + few-applicants·0.3
+              + recency·0.2 - german-penalty) -> assign work-cluster -> top N
+cluster.py    group jobs by work-similarity (title-weighted keyword match)
+library.py    one reusable resume per cluster, cached on disk (manifest + hash)
+build_resume / build_coverletter   JSON -> HTML -> pixel-accurate PDF (Chromium)
+guard.py      verify locked facts are byte-identical before anything ships
+tracker.py    Google Sheet: per-day tab + Past archive + Backlog (+ red near-miss)
+drive_links / refresh_links        clickable Drive links in the sheet
+```
+
+## ♻️ Token-smart by design (reusable resumes)
+
+The expensive step is writing resume text with the LLM. NightCrawler minimises it:
+
+- **One resume per cluster, not per job.** Similar jobs share a resume, so 10 jobs
+  cost ~3-4 generations instead of 10.
+- **A disk-cached library.** Generated resumes are stored as files in `library/`
+  with a `manifest.json`. Reusing one is a **file copy — zero LLM tokens**. The
+  library is *not* held in the model's context; it costs nothing to "remember".
+- **Reuse across days.** A resume made today is reused tomorrow for matching jobs.
+  It is **only regenerated when you edit `base-resume.json`** (the manifest stores a
+  hash of your base resume and auto-detects changes).
+- **Per-job delivery.** Each job is tailored/copied and logged one at a time, so a
+  token-limit cut-off still leaves every finished job complete in your sheet.
+- Run tailoring on **Sonnet** (set in the launcher) to stay light on usage limits.
 
 ## 🚀 Setup in one line
 
