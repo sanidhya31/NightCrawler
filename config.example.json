@@ -1,0 +1,115 @@
+{
+  "google": {
+    "key_path": ".secrets/google-key.json",
+    "sheet_id": "YOUR_GOOGLE_SHEET_ID",
+    "archive_tab": "Past",
+    "backlog_tab": "Backlog",
+    "_note": "Each run writes to a tab named by date (YYYY-MM-DD). On rollover, older date tabs are merged into archive_tab and deleted; archive_tab and backlog_tab are preserved."
+  },
+  "apify": {
+    "env_token_var": "APIFY_TOKENS",
+    "actor": "curious_coder~linkedin-jobs-scraper"
+  },
+  "drive": {
+    "enabled": true,
+    "dir": "G:/My Drive/JobApplications",
+    "_note": "Each job's PDFs are copied here (Drive Desktop auto-syncs). One folder per job per date."
+  },
+  "schedule": {
+    "window_start": "02:00",
+    "window_end": "09:00",
+    "repeat_minutes": 90,
+    "_note": "One Windows Task repeats run_nightly.cmd from window_start every repeat_minutes until window_end. Self-retry: skips once runs/<today>/DONE exists; finishes leftovers after a token-limit reset. To change timing, re-register the task (see SETUP.md) or edit it in Task Scheduler."
+  },
+  "search": {
+    "keywords": [
+      "werkstudent",
+      "working student",
+      "praktikum",
+      "internship",
+      "intern"
+    ],
+    "location": "Germany",
+    "remote_ok": true,
+    "posted_within_days": 7,
+    "fetch_count": 100,
+    "pulls_per_night": 1,
+    "pull_spacing_minutes": 0,
+    "_note": "fetch_count = jobs per pull (min 10). pulls_per_night>1 with spacing catches later-posted jobs; each pull costs ~$0.01 and dedupes so only new jobs get tailored. Tailoring resumes is FREE (no Apify cost)."
+  },
+  "filters": {
+    "recency": {
+      "hard_cutoff_days": 14,
+      "rank_buckets_days": [
+        1,
+        3,
+        7
+      ],
+      "_note": "Newer = higher priority. <=1 day best, then <=3, then <=7. Older than hard_cutoff_days is dropped."
+    },
+    "applicants": {
+      "max": 100,
+      "fewer_is_better": true,
+      "_note": "Drop jobs with >100 applicants. Fewer applicants ranks higher."
+    },
+    "role_priority": {
+      "must_match_profile_pct": 50,
+      "prioritize_keywords": [
+        "project manager",
+        "project management",
+        "project",
+        "operations",
+        "coordinator",
+        "program"
+      ],
+      "favor_fields": [],
+      "avoid_fields": [],
+      "_note": "Keep roles matching >=50% of profile. Among those, push PM/coordinator-type to top. favor_fields/avoid_fields to be configured later."
+    },
+    "watchlist_flag": [],
+    "_watchlist_note": "Companies to FLAG (e.g. places you worked before) so you notice them. Leave [] if none.",
+    "volume_cap": 10,
+    "backlog_cap": 40,
+    "_volume_note": "volume_cap = jobs fully tailored (EN+DE) per night. backlog_cap = next-tier jobs saved to the Backlog tab (link + score only, no resume) for review.",
+    "weights": {
+      "match": 0.5,
+      "applicants": 0.3,
+      "recency": 0.2
+    },
+    "german_penalty": 0.25,
+    "_weights_note": "Composite score = match*w + applicants*w + recency*w, minus german_penalty if the job requires fluent German (candidate is beginner). Higher score = higher priority.",
+    "profile_keywords": [
+      "project",
+      "management",
+      "coordination",
+      "coordinator",
+      "operations",
+      "stakeholder",
+      "communication",
+      "communications",
+      "business development",
+      "innovation",
+      "product",
+      "strategy",
+      "marketing",
+      "sales",
+      "analyst",
+      "research",
+      "market research",
+      "data",
+      "analytics",
+      "nlp",
+      "ai",
+      "python",
+      "automation",
+      "process",
+      "consulting",
+      "program",
+      "working student",
+      "werkstudent",
+      "praktikant",
+      "intern"
+    ],
+    "_profile_note": "Used to estimate profile fit (management-with-tech target). Edit to retune what counts as a good match."
+  }
+}

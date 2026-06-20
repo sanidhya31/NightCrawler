@@ -1,0 +1,52 @@
+{
+  "_note": "TEMPLATE. Copy to base/base-resume.json and replace with YOUR real facts. This is the source of truth; tailoring may only reword summary/skills/bullets, never the locked facts (name, contact, employers, dates, education).",
+  "candidate": {
+    "name": "Your Name",
+    "photo": "photo.png",
+    "title": "Your Field Student",
+    "location": "City, Country",
+    "email": "you@example.com",
+    "phone": "+00 000000000",
+    "linkedin": "linkedin.com/in/yourhandle",
+    "github": "github.com/yourhandle",
+    "summary": "One short paragraph: who you are, your focus, the kind of role you target, and your strongest 2-3 transferable strengths."
+  },
+  "workExperience": [
+    {
+      "id": "exp_001",
+      "role": "Your Role",
+      "company": "Company Name",
+      "location": "City, Country",
+      "dates": "2023 - 2025",
+      "bullets": [
+        { "id": "exp_001_b001", "text": "A concrete, true accomplishment with what you did and the impact." },
+        { "id": "exp_001_b002", "text": "Another real responsibility or result." }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "project_001",
+      "name": "Project Name",
+      "stack": ["Tool", "Tool", "Tool"],
+      "bullets": [
+        { "id": "project_001_b001", "text": "What you built and why it mattered." }
+      ]
+    }
+  ],
+  "education": [
+    { "id": "edu_001", "degree": "Your Degree", "institution": "Your University", "location": "City, Country", "dates": "2025 - Present" }
+  ],
+  "publications": [
+    { "title": "Optional publication title", "venue": "Venue", "url": "https://link-to-publication", "linkText": "View Publication" }
+  ],
+  "skills": {
+    "Group One": ["Skill", "Skill", "Skill"],
+    "Group Two": ["Skill", "Skill"],
+    "Group Three": ["Skill", "Skill"]
+  },
+  "languages": [
+    { "name": "English", "level": "Fluent" },
+    { "name": "Other", "level": "Beginner" }
+  ]
+}

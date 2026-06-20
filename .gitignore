@@ -1,0 +1,31 @@
+# ===== Secrets — never commit =====
+.secrets/
+.env
+*.key
+
+# ===== Personal data — never commit (each user supplies their own) =====
+base/base-resume.json
+base/photo.png
+config.json
+
+# ===== Local environment / tooling =====
+.venv/
+.playwright/
+__pycache__/
+*.pyc
+
+# ===== Generated output =====
+runs/
+
+# ===== Machine-specific (generated per-machine by the setup skill) =====
+.claude/settings.json
+.claude/settings.local.json
+SETUP.md
+scripts/run_nightly.cmd
+scripts/register_task.bat
+
+# ===== Editor / OS =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
