@@ -75,20 +75,19 @@ Collect the DISTINCT clusters among the top jobs. For EACH distinct cluster:
 ### 4. Deliver each top job — STRICT one-at-a-time, REUSE the cluster resume
 For EACH job in tailor.json, in rank order, FULLY deliver before starting the next
 (if the token limit hits mid-run, every delivered job is complete in the sheet):
-  a. slug = `<company>-<short-title>`. Make `runs/<date>/<slug>/` and the Drive folder.
+  a. slug = `<company>-<short-title>`. Make `runs/<date>/<slug>/` only (NO G Drive folder).
      Write `job.md` (title, company, link(s), JD, cluster, why matched).
   b. REUSE the resume: get this job's cluster files via
-     `library.py --get "<cluster>"`, and copy the library EN+DE PDFs into the job's
-     Drive folder as `resume.pdf` / `resume.de.pdf`. Do NOT regenerate the resume.
+     `library.py --get "<cluster>"`, and copy the library EN+DE PDFs into
+     `runs/<date>/<slug>/resume.pdf` and `resume.de.pdf`. Local only — no G Drive.
   c. Generate a per-JOB cover letter (this company + role swapped in, personal touch),
-     EN and/or DE, via build_coverletter.py; copy to Drive.
+     EN and/or DE, via build_coverletter.py into `runs/<date>/<slug>/cover_letter.pdf`.
   d. Log ONE row for this job via `tracker.py --job runs/<date>/<slug>/job-row.json`:
-     - `job_link` = ALL apply-links from job["sources"] joined, e.g.
-       `LinkedIn: <url> | Indeed: <url> | XING: <url>` (this is the merged-link cell).
-     - `resume_en` / `resume_de` = the Drive paths of the (reused) cluster resume.
-     - `cover_letter` = this job's letter path.
+     - `job_link` = raw URL only (no "LinkedIn:" / "Indeed:" prefix). If multiple
+       sources, use the best single URL.
+     - `role` = the job title (NOT "title" — tracker reads the "role" key).
+     - `resume_en` / `resume_de` / `cover_letter` = leave blank for now; step 4b fills them.
      - `notes` = cluster name + [WATCHLIST] if job.watchlist.
-     (Drive paths now; step 4b upgrades them to clickable links once Drive syncs.)
 
 ### 4. Write the morning digest
 Create `runs/<date>/digest.md`:
@@ -98,13 +97,15 @@ Create `runs/<date>/digest.md`:
   - Bottom section: the remaining kept-but-not-tailored jobs as a quick list
     (title, company, link) in case the user wants more.
 
-### 4b. Refresh Drive links (clickable URLs in the sheet)
-After all jobs are delivered, Drive Desktop has had time to sync. Upgrade the sheet's
-Resume/Cover columns from local paths to clickable Drive web links:
+### 4b. Upload PDFs to cloud + write Drive links into sheet
+After all jobs are delivered, upload every job's PDFs via the Drive API (no Desktop
+sync needed) and write clickable public links directly into the sheet:
 ```
-./.venv/Scripts/python.exe scripts/refresh_links.py <YYYY-MM-DD>
+./.venv/Scripts/python.exe scripts/upload_public.py <YYYY-MM-DD>
 ```
-If it reports nothing found yet (Drive still syncing), wait ~1 min and run it again.
+This uploads to the service account's own Drive space, makes each file publicly
+viewable, and updates Resume EN / Resume DE / Cover Letter columns with
+`=HYPERLINK(...)` formulas. No G Drive Desktop, no sync lag.
 
 ### 5. Summarize to the user
 Report: how many found / kept / tailored, any watchlist hits, where the digest is,
