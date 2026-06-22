@@ -72,14 +72,25 @@ Collect the DISTINCT clusters among the top jobs. For EACH distinct cluster:
   This makes at most ~4 resumes for all 10 jobs (the big token saver). A resume is
   reused across days until `base-resume.json` changes (the library auto-detects).
 
-### 4. Deliver each top job — STRICT one-at-a-time, REUSE the cluster resume
+### 4. Deliver each top job — STRICT one-at-a-time, with per-job resume tweaks
 For EACH job in tailor.json, in rank order, FULLY deliver before starting the next
 (if the token limit hits mid-run, every delivered job is complete in the sheet):
   a. slug = `<company>-<short-title>`. Make `runs/<date>/<slug>/` only (NO G Drive folder).
      Write `job.md` (title, company, link(s), JD, cluster, why matched).
-  b. REUSE the resume: get this job's cluster files via
-     `library.py --get "<cluster>"`, and copy the library EN+DE PDFs into
-     `runs/<date>/<slug>/resume.pdf` and `resume.de.pdf`. Local only — no G Drive.
+  b. PER-JOB resume tweak (start from cluster base, layer job-specific adjustments):
+     - Get the cluster base via `library.py --get "<cluster>"` — read the cluster's
+       `.tailored.json` as the STARTING POINT (not base-resume.json).
+     - Apply LIGHT per-job tweaks following `base/tailoring-spec.md`:
+         * Reorder bullets within each role so the most JD-relevant ones lead.
+         * Tweak the summary (~3-5 sentences) to reflect this specific role's angle.
+         * Reorder skills to surface the most relevant group/keywords first.
+         * Do NOT drop bullets, invent facts, or change any locked fields.
+     - Write the tweaked EN version to `runs/<date>/<slug>/resume.tailored.json`
+       and the DE version to `runs/<date>/<slug>/resume.tailored.de.json`.
+     - Guard BOTH: `scripts/guard.py base/base-resume.json <tweaked.json>` → must PASS.
+     - Render BOTH: `build_resume.py runs/<date>/<slug>/resume.tailored.json
+       runs/<date>/<slug>/resume` and the `.de` variant.
+     - The library cluster files are NEVER modified — they stay as the reusable base.
   c. Generate a per-JOB cover letter (this company + role swapped in, personal touch),
      EN and/or DE, via build_coverletter.py into `runs/<date>/<slug>/cover_letter.pdf`.
   d. Log ONE row for this job via `tracker.py --job runs/<date>/<slug>/job-row.json`:
