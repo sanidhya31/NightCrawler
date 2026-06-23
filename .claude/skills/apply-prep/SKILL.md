@@ -108,15 +108,16 @@ Create `runs/<date>/digest.md`:
   - Bottom section: the remaining kept-but-not-tailored jobs as a quick list
     (title, company, link) in case the user wants more.
 
-### 4b. Upload PDFs to cloud + write Drive links into sheet
-After all jobs are delivered, upload every job's PDFs via the Drive API (no Desktop
-sync needed) and write clickable public links directly into the sheet:
+### 4b. Upload PDFs to GCS + write public links into sheet
+After all jobs are delivered, upload every job's PDFs to Google Cloud Storage
+(bucket: cc-apply) and write clickable public links into the sheet:
 ```
 ./.venv/Scripts/python.exe scripts/upload_public.py <YYYY-MM-DD>
 ```
-This uploads to the service account's own Drive space, makes each file publicly
-viewable, and updates Resume EN / Resume DE / Cover Letter columns with
-`=HYPERLINK(...)` formulas. No G Drive Desktop, no sync lag.
+Files land at gs://cc-apply/<date>/<slug>/resume.pdf etc. The bucket has uniform
+public access so links are immediately clickable. No Drive Desktop, no OAuth token,
+no quota issues. The SLUGS_IN_ORDER list in upload_public.py must be updated each
+run to match the current date's job slugs (in rank order).
 
 ### 5. Summarize to the user
 Report: how many found / kept / tailored, any watchlist hits, where the digest is,
@@ -135,3 +136,27 @@ remaining jobs (dedup prevents repeats).
 - Never auto-apply or submit anything.
 - Keep all work on the D drive.
 - If Apify returns 0 jobs (bad night), write a digest saying so and stop gracefully.
+
+## Resume writing rules — PERMANENT, NO EXCEPTIONS
+
+### Bullet length
+Every bullet must be FULLY DESCRIPTIVE — the same length and detail level as the
+corresponding bullet in base-resume.json. Never shorten, trim, or summarise a bullet.
+If a bullet in the base is 2 lines, the tailored version must also be 2 lines.
+Reordering is allowed; shortening is not.
+
+### Projects
+NEVER include the Badminton Booking Bot or any personal hobby/automation project.
+Only include: Agro-FarmCare (ML web app) and Decipher XML Macro Tool + Web Extension.
+Reorder those two based on job relevance, but do not add or remove them.
+
+### No dashes
+NEVER use em dashes (—) or en dashes (–) anywhere in resume or cover letter text.
+Replace with a comma, a colon, or rewrite the sentence. Example:
+  BAD:  "coordinating workflows and managing expectations — keeping delivery on track"
+  GOOD: "coordinating workflows, managing expectations, and keeping delivery on track"
+
+### Upload
+PDFs go to GCS bucket cc-apply via scripts/upload_public.py. Service account has
+direct write access; no Drive Desktop, no OAuth token needed.
+Step 4b command: `./.venv/Scripts/python.exe scripts/upload_public.py <YYYY-MM-DD>`

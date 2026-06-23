@@ -194,11 +194,11 @@ def build_html(resume, photo_b64):
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   @page {{ size: A4; margin: 14mm 0; }}
-  html {{ font-family: Arial, Helvetica, sans-serif; color: {INK}; font-size: 10.2pt; line-height: 1.42; }}
+  html {{ font-family: Arial, Helvetica, sans-serif; color: {INK}; font-size: 10.6pt; line-height: 1.44; }}
   body {{ padding: 0 15mm; }}
   .head {{ display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }}
-  h1 {{ font-size: 21pt; font-weight: 800; color: {NAME_COLOR}; }}
-  .contact {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px 22px; margin-top: 11px; font-size: 9.7pt; color: #333; }}
+  h1 {{ font-size: 22pt; font-weight: 800; color: {NAME_COLOR}; }}
+  .contact {{ display: flex; flex-wrap: wrap; gap: 5px 28px; margin-top: 9px; font-size: 10pt; color: #333; }}
   .c-item {{ display: flex; align-items: center; }}
   .c-ic {{ display: inline-flex; width: 15px; }}
   .photo {{ width: 42mm; height: 42mm; border-radius: 50%; object-fit: cover; border: 1px solid #c3ccd6; flex: 0 0 auto; margin-right: 8mm; }}
